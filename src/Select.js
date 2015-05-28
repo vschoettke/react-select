@@ -5,6 +5,10 @@ var Value = require('./Value');
 
 var requestId = 0;
 
+function defaultSuggestionGenerator(inputValue, op) {
+	return op.suggestion ? op.suggestion : op.label;
+}
+
 var Select = React.createClass({
 
 	displayName: 'Select',
@@ -33,6 +37,7 @@ var Select = React.createClass({
 		filterOptions: React.PropTypes.func,       // method to filter the options array: function([options], filterString, [values])
 		matchPos: React.PropTypes.string,          // (any|start) match the start or entire string when filtering
 		matchProp: React.PropTypes.string,         // (any|label|value) which option property to filter on
+		suggestionGenerator: React.PropTypes.func,  // handler to generate suggestions elements that are displayed in the selection box function(inputValue, optionValue)
 		inputProps: React.PropTypes.object,        // custom attributes for the Input (in the Select-control) e.g: {'data-foo': 'bar'}
 		allowCreate: React.PropTypes.bool,         // wether to allow creation of new entries
 		/*
@@ -65,6 +70,7 @@ var Select = React.createClass({
 			className: undefined,
 			matchPos: 'any',
 			matchProp: 'any',
+			suggestionGenerator: defaultSuggestionGenerator,
 			inputProps: {},
 			allowCreate: false,
 
@@ -644,9 +650,9 @@ var Select = React.createClass({
 			var mouseDown = this.selectValue.bind(this, op);
 
 			if (op.disabled) {
-				return <div ref={ref} key={'option-' + op.value} className={optionClass}>{op.label}</div>;
+				return <div ref={ref} key={'option-' + op.value} className={optionClass}>{this.props.suggestionGenerator(this.state.inputValue, op)}</div>;
 			} else {
-				return <div ref={ref} key={'option-' + op.value} className={optionClass} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onMouseDown={mouseDown} onClick={mouseDown}>{ op.create ? "Add "+op.label+" ?" : op.label}</div>;
+				return <div ref={ref} key={'option-' + op.value} className={optionClass} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onMouseDown={mouseDown} onClick={mouseDown}>{ op.create ? "Add "+op.label+" ?" : this.props.suggestionGenerator(this.state.inputValue, op) }</div>;
 			}
 		}, this);
 
