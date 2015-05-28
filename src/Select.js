@@ -99,7 +99,11 @@ var Select = React.createClass({
 	componentWillMount: function() {
 		this._optionsCache = {};
 		this._optionsFilterString = '';
+		this.setState(this.getStateFromValue(this.props.value));
 
+		if (this.props.asyncOptions && this.props.autoload) {
+			this.autoloadAsyncOptions();
+		}
 
 		var self = this;
 		this._closeMenuIfClickedOutside = function(event) {
@@ -135,13 +139,6 @@ var Select = React.createClass({
 				document.removeEventListener('click', this._closeMenuIfClickedOutside);
 			}
 		};
-    
-		this.setState(this.getStateFromValue(this.props.value),function(){
-		  //Executes after state change is done. Fixes issue #201
-		  if (this.props.asyncOptions && this.props.autoload) {
-				this.autoloadAsyncOptions();
-			}
-    });
 	},
 
 	componentWillUnmount: function() {
